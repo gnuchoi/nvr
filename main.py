@@ -9,6 +9,7 @@ import librosa
 import numpy as np
 #import h5py as hdf # to read/write data
 import cPickle
+import pdb
 
 from constants import *
 import numpy as np
@@ -30,6 +31,7 @@ def prepare():
 		for wavfile in filelist_wav:
 			if not os.path.exists( DATA_PATH + getSTFTFilename(wavfile) ):
 				result.append(wavfile)
+				pdf.set_trace()
 
 		return result
 

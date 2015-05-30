@@ -11,7 +11,7 @@ elif deviceName == 'exeter.eecs.qmul.ac.uk':
 	isServer = True
 	isExeter = True
 else:
-        print "WHERE ARE YOU???"
+    print "WHERE ARE YOU???"
 
 
 if isLaptop:
@@ -23,8 +23,8 @@ else:
 	SRC_PATH = PHD_PATH + 'srcs/'
 
 if isServer:
-        import sys
-        sys.path.append("modules/librosa")
+    import sys
+    sys.path.append("modules/librosa")
 
     
 
