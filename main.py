@@ -31,7 +31,7 @@ def prepare():
 		for wavfile in filelist_wav:
 			if not os.path.exists( DATA_PATH + getSTFTFilename(wavfile) ):
 				result.append(wavfile)
-				pdf.set_trace()
+				#pdb.set_trace()
 
 		return result
 
