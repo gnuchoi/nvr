@@ -1,0 +1,7 @@
+
+
+
+N_FFT = 1024
+N_HOP = 512
+N_WIN = 1024
+TYPE_WIN= None
