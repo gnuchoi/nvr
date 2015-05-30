@@ -1,11 +1,15 @@
+
 # 29 May 2015, Keunwoo Choi, keunwoo.choi@qmul.ac.uk
 
+from setup_environment import *
+
+import matplotlib
+matplotlib.use('Agg')
 import librosa
 import numpy as np
-import h5py as hdf # to read/write data
+#import h5py as hdf # to read/write data
 import cPickle
 
-from setup_environment import *
 from constants import *
 import numpy as np
 
