@@ -14,6 +14,8 @@ import pdb
 from constants import *
 import numpy as np
 
+import keras
+
 def prepare():
 	import os
 	def getUnprocessedWaveList():
@@ -81,6 +83,11 @@ def prepare():
 		load the spectrogram in the file
 		'''
 
+	def buildModel():
+		model = keras.models.Sequential()
+		
+
+
 
 if __name__ == '__main__':
 	#get file list in the source folder	
@@ -90,6 +97,10 @@ if __name__ == '__main__':
 	for filename in filenameList:
 		specgramHere = loadSpectrogramFile(filename)
 		# do something
+
+	model = buildModel()
+
+
 
 
 
