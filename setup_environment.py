@@ -34,6 +34,6 @@ PROJ_PATH = PHD_PATH + PROJ_FOLDER
 DATA_PATH = PHD_PATH + PROJ_FOLDER + DATA_FOLDER
 TXT_PATH  = PHD_PATH + PROJ_FOLDER + TXT_FOLDER
 
-TRAIN_FiLE = 'train_list.txt'
-VALID_FiLE = 'valid_list.txt'
-TEST_FiLE  = 'test_list.txt'
+TRAIN_FILE = 'train_list.txt'
+VALID_FILE = 'valid_list.txt'
+TEST_FILE  = 'test_list.txt'
