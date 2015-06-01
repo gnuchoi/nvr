@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import librosa
 import numpy as np
 #import h5py as hdf # to read/write data
-import cPickle
+import cPickle 
 import pdb
 
 from constants import *
@@ -71,11 +71,27 @@ def prepare():
 		print 'STFT finished:' + wavfile
 		cPickle.dump(SRC, open(DATA_PATH + getSTFTFilename(wavfile), 'wb' )) #write spectrogram
 
+	def loadSpectrogramList():
+		'''
+		load file list in the folder
+		'''
+
+	def loadSpectrogramFile(filename):
+		'''
+		load the spectrogram in the file
+		'''
+
 
 if __name__ == '__main__':
 	#get file list in the source folder	
 	prepare()
-	# load 
+	# load to train
+	filenameList = loadSpectrogramList() # load file names 
+	for filename in filenameList:
+		specgramHere = loadSpectrogramFile(filename)
+		# do something
+
+
 
 
 

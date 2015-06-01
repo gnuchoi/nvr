@@ -23,13 +23,17 @@ else:
 	SRC_PATH = PHD_PATH + 'srcs/'
 
 if isServer:
-    import sys
-    sys.path.append("modules/librosa")
+	SID_SPEC_PATH = '/import/c4dm-02/people/siddharths/Chords/features/11025_4096_2048.h5'
 
-    
 
 PROJ_FOLDER = 'nvr/'
 DATA_FOLDER = 'data/'
+TXT_FOLDER  = 'txt/'
 
 PROJ_PATH = PHD_PATH + PROJ_FOLDER
 DATA_PATH = PHD_PATH + PROJ_FOLDER + DATA_FOLDER
+TXT_PATH  = PHD_PATH + PROJ_FOLDER + TXT_FOLDER
+
+TRAIN_FiLE = 'train_list.txt'
+VALID_FiLE = 'valid_list.txt'
+TEST_FiLE  = 'test_list.txt'
