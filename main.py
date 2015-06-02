@@ -7,7 +7,7 @@ import matplotlib
 matplotlib.use('Agg')
 import librosa
 import numpy as np
-#import h5py as hdf # to read/write data
+import h5py # to read/write data
 import os
 
 import cPickle 
@@ -101,7 +101,7 @@ def buildModel():
 	sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 	model.compile(loss = 'mean_squared_error', optimizer=sgd)
 
-def prepareGtzan(gtzan_path):
+def prepareGtzan():
 	'''
 	input: path of gtzan dataset
 	what it does: load the files, get stft, save it into the disk, and update h5 dictionary
@@ -118,11 +118,12 @@ def prepareGtzan(gtzan_path):
 			genre = folder
 			for filename in os.listdir(GTZAN_WAV_PATH + folder):
 				#check if it already in the h5 file
-				if not filename in f_h5.keys()
+				if not filename in f_h5.keys():
 					src, sr = librosa.load(GTZAN_WAV_PATH + folder + '/' + filename)
 					specgram = librosa.stft(src, n_fft=N_FFT, hop_length=N_HOP, win_length=N_WIN, window=TYPE_WIN) # STFT of signal
 					dset = f_h5.create_dataset(filename, specgram.shape, dtype='f')
 					dset = specgram
+					print filename + ' is STFTed and stored.'
 
 
 	f_h5.close()
