@@ -123,6 +123,7 @@ def prepareGtzan():
 					specgram = librosa.stft(src, n_fft=N_FFT, hop_length=N_HOP, win_length=N_WIN, window=TYPE_WIN) # STFT of signal
 					dset = f_h5.create_dataset(filename, specgram.shape, dtype='f')
 					dset = specgram
+					dset.attrs['genre'] = genre
 					print filename + ' is STFTed and stored.'
 
 
