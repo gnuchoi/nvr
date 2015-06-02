@@ -24,7 +24,8 @@ else:
 
 if isServer:
 	SID_SPEC_PATH = '/import/c4dm-02/people/siddharths/Chords/features/11025_4096_2048.h5'
-
+	GNU_SPEC_PATH = '/import/c4dm-02/people/keunwoo/gtzan_stft/'
+	GTZAN_WAV_PATH = '/import/c4dm-datasets/gtzan/'
 
 PROJ_FOLDER = 'nvr/'
 DATA_FOLDER = 'data/'
@@ -37,3 +38,5 @@ TXT_PATH  = PHD_PATH + PROJ_FOLDER + TXT_FOLDER
 TRAIN_FILE = 'train_list.txt'
 VALID_FILE = 'valid_list.txt'
 TEST_FILE  = 'test_list.txt'
+
+GTZAN_h5FILE = 'dict.h5'
