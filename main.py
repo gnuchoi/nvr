@@ -120,7 +120,7 @@ def prepareGtzan():
 				#check if it already in the h5 file
 				if not filename in f_h5.keys():
 					src, sr = librosa.load(GTZAN_WAV_PATH + folder + '/' + filename)
-					specgram = librosa.stft(src, n_fft=N_FFT, hop_length=N_HOP, win_length=N_WIN, window=TYPE_WIN) # STFT of signal
+					specgram = np.absolute(librosa.stft(src, n_fft=N_FFT, hop_length=N_HOP, win_length=N_WIN, window=TYPE_WIN)) # STFT of signal
 					dset = f_h5.create_dataset(filename, data=specgram)
 					dset.attrs['genre'] = genre
 					print filename + ' is STFTed and stored.'
