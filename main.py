@@ -90,7 +90,7 @@ def buildModel():
 	from keras.optimizers import RMSprop
 
 	model = Sequential()
-	model.add(Dense(500, 128, init='uniform')) #500: arbitrary number
+	model.add(Dense(513, 128, init='uniform')) #500: arbitrary number
 	model.add(Activation('tanh'))
 	model.add(Dropout(0.5))
 
