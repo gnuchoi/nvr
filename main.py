@@ -191,7 +191,7 @@ if __name__ == '__main__':
 				test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
 				test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
 			print 'genre ' + str(genre_i) + ' finished.'
-		
+		pdb.set_trace()
 		saveData(training_x, training_y, test_x, test_y)
 
 	'''
