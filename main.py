@@ -167,7 +167,7 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 201
+	nb_epoch = 1
 	#about training data loading
 	minNumFr = 1290
 	lenFreq = 513 #length on frequency axis
@@ -175,7 +175,8 @@ if __name__ == '__main__':
 	numSongPerGenre = 100
 	portionTraining = 0.8
 
-	numIteration = 10 
+	numIteration = 1
+ 
 	for iter_i in range(numIteration):
 		print '   === ' + str(iter_i) + '-th iteration ==='
 		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80
