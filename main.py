@@ -17,6 +17,8 @@ from constants import *
 import numpy as np
 
 import keras
+from keras.optimizers import RMSprop
+from keras.utils import np_utils
 
 def prepare():
 	def getUnprocessedWaveList():
@@ -85,7 +87,8 @@ def loadSpectrogramFile(filename):
 def buildModel():
 	from keras.models import Sequential
 	from keras.layers.core import Dense, Dropout, Activation
-	from keras.optimizers import SGD
+	from keras.optimizers import RMSprop
+
 	model = Sequential()
 	model.add(Dense(500, 128, init='uniform')) #500: arbitrary number
 	model.add(Activation('Tanh'))
@@ -95,11 +98,11 @@ def buildModel():
 	model.add(Activation('Tanh'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(32, 2, init='uniform'))
+	model.add(Dense(32, 10, init='uniform'))
 	model.add(Activation('softmax'))
 
-	sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
-	model.compile(loss = 'mean_squared_error', optimizer=sgd)
+	rms = RMSprop()
+	model.compile(loss='categorical_crossentropy', optimizer=rms)
 
 def prepareGtzan():
 	'''
@@ -109,7 +112,8 @@ def prepareGtzan():
 	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
 
 	if os.path.exists(h5filepath):
-		f_h5 = h5py.File(h5filepath, 'r+')
+		print "let's just load the Gtzan STFTs"
+		return;
 	else:
 		f_h5 = h5py.File(h5filepath, 'w')
 
@@ -128,32 +132,87 @@ def prepareGtzan():
 
 	f_h5.close()
 
+def genreToClass():
+	retDict = {'blues':0, 'classical':1, 'country':2, 'disco':3, 'hiphop':4,
+				'jazz':5, 'metal':6, 'pop':7, 'reggae':8, 'rock':9}
+	return retDict
 
+def saveData(train_x, train_y, test_x, test_y):
+	cPickle.dump([train_x, train_y, test_x, test_y], (open(DATA_PATH + GTZAN_DATA, 'wb')))
 
-
-
-
-
+def loadData():
+	data = cPickle.load(open(DATA_PATH + GTZAN_DATA, 'rb'))
+	return data[0], data[1], data[2], data[3]
 
 
 if __name__ == '__main__':
 	#get file list in the source folder	
 	# prepare() #old one for the beginning.
 	prepareGtzan()
-	pdg.set_trace()
+	genreToClassDict = genreToCLass()
 	# load to train
-	filenameList = loadSpectrogramList() # load file names 
-	for filename in filenameList:
-		specgramHere = loadSpectrogramFile(filename)
-		# do something
+	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
+	f_h5 = h5py.File(h5filepath, 'r')
+	print 'STFTs are loaded'
+	'''
+	minNumFr = 99999
+	for i in range(len(f_h5)):
+		minNumFr = min(minNumFr, f_h5[f_h5.keys()[i]].shape[1])
+	#Now I Know, it's 1290 for GTZAN
+	'''
+	if os.path.exists(DATA_PATH + GTZAN_DATA):
+		[training_x, training_y, test_x, test_y] = loadData()
+	else:
+		minNumFr = 1290
+		lenFreq = 513 #length on frequency axis
+		numGenre = 10
+		portionTraining = 0.8
+		training_x = np.zeros((0, 513))
+		training_y = np.zeros((0,1))
+		test_x = np.zeros((0, 513))
+		test_y = np.zeros((0,1))
 
+		for genre_i in range(numGenre):
+			print 'genre ' + str(genre_i) + ' started.'
+			for song_i in range(portionTraining * 100): # 80% training, 20% test
+				ind = genre_i * 100 + song_i
+				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
+				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
+				training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
+				training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[specgram.attrs['genre']]), axis=0) # int, 0-9
+
+			for song_i in range(portionTraining*100,100)
+				ind = genre_i * 100 + sing_i
+				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
+				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
+				test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
+				test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[specgram.attrs['genre']]), axis=0) # int, 0-9
+			print 'genre ' + str(genre_i) + ' finished.'
+		
+		saveData()
+
+	'''
 	h5 = h5py.File(SID_SPEC_PATH) # read h5 dict
 	f_text = open(TXT_PATH + TRAIN_FILE, "r")
 	for line in f_text.readlines():
 		line = line.split('\n')[0] #remove newline 
 		specHere = h5[line]['x'] # 'x' is the key for stft 
-
+	'''
 	model = buildModel()
+
+	batch_size = 64
+	nb_classes = 10
+	nb_epoch = 20
+
+	# convert class vectors to binary class matrices
+	training_y = np_utils.to_categorical(training_y, nb_classes)
+	test_y = np_utils.to_categorical(test_y, nb_classes)
+
+	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2, validation_data=(test_x, test_y))
+	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
+	print('Test score:', score[0])
+	print('Test accuracy:', score[1])
+
 
 	#load data
 

@@ -40,3 +40,4 @@ VALID_FILE = 'valid_list.txt'
 TEST_FILE  = 'test_list.txt'
 
 GTZAN_h5FILE = 'dict.h5'
+GTZAN_DATA = 'gtzan_data.p'
