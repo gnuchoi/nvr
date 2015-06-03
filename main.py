@@ -167,9 +167,10 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 1
+	nb_epoch = 2
 	#about training data loading
 	minNumFr = 1290
+	minNumFr = 100 #to reduce the datapoints, for temporary.
 	lenFreq = 513 #length on frequency axis
 	numGenre = 10
 	numSongPerGenre = 100
@@ -177,25 +178,26 @@ if __name__ == '__main__':
 
 	numIteration = 1
  
-	for iter_i in range(numIteration):
-		print '   === ' + str(iter_i) + '-th iteration ==='
-		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80
-			training_x = np.zeros((0, 513))
-			training_y = np.zeros((0,1))
-			for genre_i in range(numGenre):
-				ind = genre_i* numSongPerGenre + song_i
-				genre = f_h5[f_h5.keys()[ind]].attrs['genre']
-				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-				training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
-				training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
-			#after loading from all genre, let's make it appropriate for the model
-			print '--- model fitting! ---'
-			training_y = np_utils.to_categorical(training_y, nb_classes)
-			model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
-
+	#for iter_i in range(numIteration):
+	print '   === ' + str(iter_i) + '-th iteration ==='
+	training_x = np.zeros((0, 513))
+	training_y = np.zeros((0,1))	
 	for genre_i in range(numGenre):
-		test_x = np.zeros((0, 513))
-		test_y = np.zeros((0,1))
+		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80	
+			ind = genre_i* numSongPerGenre + song_i
+			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
+			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
+			training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
+			training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
+
+	#after loading from all genre, let's make it appropriate for the model
+	print '--- model fitting! ---'
+	training_y = np_utils.to_categorical(training_y, nb_classes)
+	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
+
+	test_x = np.zeros((0, 513))
+	test_y = np.zeros((0,1))
+	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
 			ind = genre_i * 100 + song_i
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
@@ -203,11 +205,11 @@ if __name__ == '__main__':
 			# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
 			test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
 			test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
-		print '--- prediction! for ' + genre + ' ---'
-		test_y = np_utils.to_categorical(test_y, nb_classes)
-		score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
-		print('Test score:', score[0])
-		print('Test accuracy:', score[1])
+	print '--- prediction! for ' + genre + ' ---'
+	test_y = np_utils.to_categorical(test_y, nb_classes)
+	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
+	print('Test score:', score[0])
+	print('Test accuracy:', score[1])
 
 
 
