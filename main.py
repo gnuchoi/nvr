@@ -141,7 +141,7 @@ def saveData(train_x, train_y, test_x, test_y):
 	cPickle.dump([train_x, train_y, test_x, test_y], (open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'wb')))
 
 def loadData():
-	data = cPickle.load(open(DATA_PATH + GTZAN_TRAINING_TEST, 'rb'))
+	data = cPickle.load(open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'rb'))
 	return data[0], data[1], data[2], data[3]
 
 
