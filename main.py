@@ -168,10 +168,12 @@ if __name__ == '__main__':
 	batch_size = 64
 	nb_classes = 10
 	nb_epoch = 10
-	#about training data loading
+	
+	#spectrogram constants
 	minNumFr = 1290
-	minNumFr = 10 #to reduce the datapoints, for temporary.
-	lenFreq = 513 #length on frequency axis
+	minNumFr = 300 #to reduce the datapoints, for temporary.
+	lenFreq = N_FFT/2+1 #length on frequency axis
+	#about training data loading
 	numGenre = 10
 	numSongPerGenre = 100
 	portionTraining = 0.8
@@ -181,7 +183,7 @@ if __name__ == '__main__':
 	#for iter_i in range(numIteration):
 	
 	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
-	training_x = np.zeros((numDataPoints, 513))
+	training_x = np.zeros((numDataPoints, lenFreq))
 	training_y = np.zeros((numDataPoints,1))	
 	print '--- prepare data --- p.s. numDataPoints: ' + str(numDataPoints)
 	for genre_i in range(numGenre):
@@ -201,7 +203,7 @@ if __name__ == '__main__':
 
 	print '--- prepare test data  ---'
 	numDataPoints = int((1-portionTraining) * numSongPerGenre) * numGenre * minNumFr
-	test_x = np.zeros((numDataPoints, 513))
+	test_x = np.zeros((numDataPoints, lenFreq))
 	test_y = np.zeros((numDataPoints,1))
 	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
