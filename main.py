@@ -186,28 +186,33 @@ if __name__ == '__main__':
 	print '--- prepare data --- p.s. numDataPoints: ' + str(numDataPoints)
 	for genre_i in range(numGenre):
 		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80	
-			ind = genre_i* numSongPerGenre + song_i
+			ind = genre_i* numSongPerGenre + song_i # 100
+			indToWrite = genre_i * int(portionTraining * numSongPerGenre) + song_i # 80
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			print 'genre_i:' + str(genre_i) + ', song_i:' + str(song_i) + ', so, ' +str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
-			training_x[ind*minNumFr:(ind+1)*minNumFr, : ] = np.transpose(specgram)
-			training_y[ind*minNumFr:(ind+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
-
+			#print 'genre_i:' + str(genre_i) + ', song_i:' + str(song_i) + ', so, ' +str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
+			training_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
+			training_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
+	print '--- training data loaded ---'
 	#after loading from all genre, let's make it appropriate for the model
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 
-	test_x = np.zeros((0, 513))
-	test_y = np.zeros((0,1))
+	print '--- prepare test data  ---'
+	numDataPoints = int((1-portionTraining) * numSongPerGenre) * numGenre * minNumFr
+	test_x = np.zeros((numDataPoints, 513))
+	test_y = np.zeros((numDataPoints,1))
 	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
 			ind = genre_i * 100 + song_i
+			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + song_i # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 			# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
-			test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
-			test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
+			test_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
+			test_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
+	print '--- test data loaded ---'
 	print '--- prediction! for ' + genre + ' ---'
 	test_y = np_utils.to_categorical(test_y, nb_classes)
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
