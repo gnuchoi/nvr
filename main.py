@@ -189,7 +189,7 @@ if __name__ == '__main__':
 			ind = genre_i* numSongPerGenre + song_i
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			print str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
+			print 'genre_i:' + str(genre_i) + ', song_i:' + str(song_i) + ', so, ' +str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
 			training_x[ind*minNumFr:(ind+1)*minNumFr, : ] = np.transpose(specgram)
 			training_y[ind*minNumFr:(ind+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 
