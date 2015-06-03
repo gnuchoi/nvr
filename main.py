@@ -91,11 +91,11 @@ def buildModel():
 
 	model = Sequential()
 	model.add(Dense(500, 128, init='uniform')) #500: arbitrary number
-	model.add(Activation('Tanh'))
+	model.add(Activation('tanh'))
 	model.add(Dropout(0.5))
 
 	model.add(Dense(128, 32, init='uniform'))
-	model.add(Activation('Tanh'))
+	model.add(Activation('tanh'))
 	model.add(Dropout(0.5))
 
 	model.add(Dense(32, 10, init='uniform'))
