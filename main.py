@@ -167,10 +167,10 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 2
+	nb_epoch = 10
 	#about training data loading
 	minNumFr = 1290
-	minNumFr = 100 #to reduce the datapoints, for temporary.
+	minNumFr = 10 #to reduce the datapoints, for temporary.
 	lenFreq = 513 #length on frequency axis
 	numGenre = 10
 	numSongPerGenre = 100
@@ -180,15 +180,17 @@ if __name__ == '__main__':
  
 	#for iter_i in range(numIteration):
 	
-	training_x = np.zeros((0, 513))
-	training_y = np.zeros((0,1))	
+	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
+	training_x = np.zeros((numDataPoints, 513))
+	training_y = np.zeros((numDataPoints,1))	
+	print '--- prepare data --- p.s. numDataPoints: ' + str(numDataPoints)
 	for genre_i in range(numGenre):
 		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80	
 			ind = genre_i* numSongPerGenre + song_i
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
-			training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
+			training_x[ind*minNumFr:(ind+1)*minNumFr, : ] = np.transpose(specgram)
+			training_y[ind*minNumFr:(ind+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 
 	#after loading from all genre, let's make it appropriate for the model
 	print '--- model fitting! ---'
