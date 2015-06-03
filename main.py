@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	numIteration = 1
  
 	#for iter_i in range(numIteration):
-	print '   === ' + str(iter_i) + '-th iteration ==='
+	
 	training_x = np.zeros((0, 513))
 	training_y = np.zeros((0,1))	
 	for genre_i in range(numGenre):
