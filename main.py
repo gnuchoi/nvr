@@ -149,7 +149,7 @@ if __name__ == '__main__':
 	#get file list in the source folder	
 	# prepare() #old one for the beginning.
 	prepareGtzan()
-	genreToClassDict = genreToCLass()
+	genreToClassDict = genreToClass()
 	# load to train
 	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
 	f_h5 = h5py.File(h5filepath, 'r')
@@ -174,22 +174,25 @@ if __name__ == '__main__':
 
 		for genre_i in range(numGenre):
 			print 'genre ' + str(genre_i) + ' started.'
-			for song_i in range(portionTraining * 100): # 80% training, 20% test
+			for song_i in range(int(portionTraining * 100)): # 80% training, 20% test
 				ind = genre_i * 100 + song_i
+				# pdb.set_trace()
+				genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
 				training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
-				training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[specgram.attrs['genre']]), axis=0) # int, 0-9
+				training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
 
-			for song_i in range(portionTraining*100,100)
-				ind = genre_i * 100 + sing_i
+			for song_i in range(int(portionTraining*100),100):
+				ind = genre_i * 100 + song_i
+				genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
 				test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
-				test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[specgram.attrs['genre']]), axis=0) # int, 0-9
+				test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
 			print 'genre ' + str(genre_i) + ' finished.'
 		
-		saveData()
+		saveData(training_x, training_y, test_x, test_y)
 
 	'''
 	h5 = h5py.File(SID_SPEC_PATH) # read h5 dict
