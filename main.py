@@ -201,16 +201,17 @@ if __name__ == '__main__':
 		line = line.split('\n')[0] #remove newline 
 		specHere = h5[line]['x'] # 'x' is the key for stft 
 	'''
+	print "let's build a model"
 	model = buildModel()
 
 	batch_size = 64
 	nb_classes = 10
 	nb_epoch = 20
-
+	print "let's edit"
 	# convert class vectors to binary class matrices
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	test_y = np_utils.to_categorical(test_y, nb_classes)
-
+	print "let's fit"
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2, validation_data=(test_x, test_y))
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
