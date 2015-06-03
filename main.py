@@ -172,7 +172,7 @@ if __name__ == '__main__':
 		test_x = np.zeros((0, 513))
 		test_y = np.zeros((0,1))
 
-		for genre_i in range(1):
+		for genre_i in range(numGenre):
 			print 'genre ' + str(genre_i) + ' started.'
 			for song_i in range(int(portionTraining * 100)): # 80% training, 20% test
 				ind = genre_i * 100 + song_i
