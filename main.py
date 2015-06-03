@@ -103,6 +103,7 @@ def buildModel():
 
 	rms = RMSprop()
 	model.compile(loss='categorical_crossentropy', optimizer=rms)
+	return model
 
 def prepareGtzan():
 	'''
