@@ -136,14 +136,14 @@ def genreToClass():
 	retDict = {'blues':0, 'classical':1, 'country':2, 'disco':3, 'hiphop':4,
 				'jazz':5, 'metal':6, 'pop':7, 'reggae':8, 'rock':9}
 	return retDict
-
+'''
 def saveData(train_x, train_y, test_x, test_y):
 	cPickle.dump([train_x, train_y, test_x, test_y], (open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'wb')))
 
 def loadData():
 	data = cPickle.load(open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'rb'))
 	return data[0], data[1], data[2], data[3]
-
+'''
 
 if __name__ == '__main__':
 	#get file list in the source folder	
@@ -160,39 +160,52 @@ if __name__ == '__main__':
 		minNumFr = min(minNumFr, f_h5[f_h5.keys()[i]].shape[1])
 	#Now I Know, it's 1290 for GTZAN
 	'''
-	if os.path.exists(DATA_PATH + GTZAN_DATA):
-		[training_x, training_y, test_x, test_y] = loadData()
-	else:
-		minNumFr = 1290
-		lenFreq = 513 #length on frequency axis
-		numGenre = 10
-		portionTraining = 0.8
-		training_x = np.zeros((0, 513))
-		training_y = np.zeros((0,1))
-		test_x = np.zeros((0, 513))
-		test_y = np.zeros((0,1))
+	#about model
+	model = buildModel()
+	#about optimisation
+	batch_size = 64
+	nb_classes = 10
+	nb_epoch = 201
+	#about training data loading
+	minNumFr = 1290
+	lenFreq = 513 #length on frequency axis
+	numGenre = 10
+	numSongPerGenre = 100
+	portionTraining = 0.8
 
-		for genre_i in range(1):
-			print 'genre ' + str(genre_i) + ' started.'
-			for song_i in range(int(portionTraining * 100)): # 80% training, 20% test
-				ind = genre_i * 100 + song_i
-				# pdb.set_trace()
+	numIteration = 10 
+	for iter_i in range(numIteration):
+		print '   === ' + str(iter_i) + '-th iteration ==='
+		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80
+			training_x = np.zeros((0, 513))
+			training_y = np.zeros((0,1))
+			for genre_i in range(numGenre):
+				ind = genre_i* numSongPerGenre + song_i
 				genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
 				training_x = np.concatenate((training_x, np.transpose(specgram)), axis=0)
 				training_y = np.concatenate((training_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
+			#after loading from all genre, let's make it appropriate for the model
+			print '--- model fitting! ---'
+			training_y = np_utils.to_categorical(training_y, nb_classes)
+			model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 
-			for song_i in range(int(portionTraining*100),100):
-				ind = genre_i * 100 + song_i
-				genre = f_h5[f_h5.keys()[ind]].attrs['genre']
-				specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-				# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
-				test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
-				test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
-			print 'genre ' + str(genre_i) + ' finished.'
-		pdb.set_trace()
-		saveData(training_x, training_y, test_x, test_y)
+	for genre_i in range(numGenre):
+		test_x = np.zeros((0, 513))
+		test_y = np.zeros((0,1))
+		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
+			ind = genre_i * 100 + song_i
+			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
+			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
+			# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
+			test_x = np.concatenate((test_x, np.transpose(specgram)), axis=0)
+			test_y = np.concatenate((test_y, np.ones((specgram.shape[1], 1)) * genreToClassDict[genre]), axis=0) # int, 0-9
+		print '--- prediction! for ' + genre + ' ---'
+		test_y = np_utils.to_categorical(test_y, nb_classes)
+		score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
+		print('Test score:', score[0])
+		print('Test accuracy:', score[1])
+
 
 	'''
 	h5 = h5py.File(SID_SPEC_PATH) # read h5 dict
@@ -201,28 +214,6 @@ if __name__ == '__main__':
 		line = line.split('\n')[0] #remove newline 
 		specHere = h5[line]['x'] # 'x' is the key for stft 
 	'''
-	model = buildModel()
-
-	batch_size = 64
-	nb_classes = 10
-	nb_epoch = 20
-
-	# convert class vectors to binary class matrices
-	training_y = np_utils.to_categorical(training_y, nb_classes)
-	test_y = np_utils.to_categorical(test_y, nb_classes)
-
-	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2, validation_data=(test_x, test_y))
-	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
-	print('Test score:', score[0])
-	print('Test accuracy:', score[1])
-
-
-	#load data
-
-	#fit model
-
-
-
 
 
 
