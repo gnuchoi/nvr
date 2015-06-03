@@ -138,10 +138,10 @@ def genreToClass():
 	return retDict
 
 def saveData(train_x, train_y, test_x, test_y):
-	cPickle.dump([train_x, train_y, test_x, test_y], (open(DATA_PATH + GTZAN_DATA, 'wb')))
+	cPickle.dump([train_x, train_y, test_x, test_y], (open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'wb')))
 
 def loadData():
-	data = cPickle.load(open(DATA_PATH + GTZAN_DATA, 'rb'))
+	data = cPickle.load(open(DATA_PATH + GTZAN_TRAINING_TEST, 'rb'))
 	return data[0], data[1], data[2], data[3]
 
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 		test_x = np.zeros((0, 513))
 		test_y = np.zeros((0,1))
 
-		for genre_i in range(numGenre):
+		for genre_i in range(1):
 			print 'genre ' + str(genre_i) + ' started.'
 			for song_i in range(int(portionTraining * 100)): # 80% training, 20% test
 				ind = genre_i * 100 + song_i
