@@ -167,7 +167,7 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 10
+	nb_epoch = 100
 	
 	#spectrogram constants
 	minNumFr = 1290
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
 			ind = genre_i * 100 + song_i
-			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + song_i # 20
+			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 			# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
