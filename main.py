@@ -204,17 +204,17 @@ if __name__ == '__main__':
 	'''
 	print '--- prepare test data  ---'
 	pdb.set_trace()
-	numDataPoints = int((1.0-portionTraining) * numSongPerGenre) * numGenre * minNumFr
+	numDataPoints = int(portionTesting * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
 	test_y = np.zeros((numDataPoints,1))
 	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
 			ind = genre_i * 100 + song_i
-			indToWrite = genre_i * int((1.0-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
+			indToWrite = genre_i * int(portionTesting * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 			print 'ind to write:' + str(indToWrite) + ', out of ' + str(numDataPoints)
-			print '   ' + 'genre_i:' + str(genre_i) + ' and:' + str(int((1-portionTraining) * numSongPerGenre)) + ' and:' + str((song_i - int(portionTraining*numSongPerGenre)))
+			print '   ' + 'genre_i:' + str(genre_i) + ' and:' + str(int(portionTesting * numSongPerGenre)) + ' and:' + str((song_i - int(portionTraining*numSongPerGenre)))
 			test_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
 			test_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 	print '--- test data loaded ---'
