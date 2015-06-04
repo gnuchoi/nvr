@@ -211,7 +211,7 @@ if __name__ == '__main__':
 			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			print 'ind to write:' + str(intToWrite) + ', out of ' + str(numDataPoints)
+			print 'ind to write:' + str(indToWrite) + ', out of ' + str(numDataPoints)
 			test_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
 			test_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 	print '--- test data loaded ---'
