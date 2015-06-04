@@ -220,7 +220,7 @@ if __name__ == '__main__':
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
 	print('Test accuracy:', score[1])
-
+	cPickle.dump(model, open(DATA_PATH + MODEL_FILE, "wb"))
 
 
 
