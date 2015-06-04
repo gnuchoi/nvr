@@ -202,13 +202,13 @@ if __name__ == '__main__':
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 	'''
 	print '--- prepare test data  ---'
-	numDataPoints = int((1-portionTraining) * numSongPerGenre) * numGenre * minNumFr
+	numDataPoints = int((1.0-portionTraining) * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
 	test_y = np.zeros((numDataPoints,1))
 	for genre_i in range(numGenre):		
 		for song_i in range(int(portionTraining*numSongPerGenre), numSongPerGenre):
 			ind = genre_i * 100 + song_i
-			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
+			indToWrite = genre_i * int((1.0-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
 			print 'ind to write:' + str(indToWrite) + ', out of ' + str(numDataPoints)
