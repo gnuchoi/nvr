@@ -2,7 +2,7 @@ import platform
 deviceName = platform.node()
 
 
-if deviceName == 'KChoi.MBPR.2013.home':
+if deviceName == 'KChoi.MBPR.2013.home' or deviceName == 'KChoiMBPR2013.local':
 	isLaptop = True
 	isServer = False
 	isExeter = False
@@ -30,10 +30,13 @@ if isServer:
 PROJ_FOLDER = 'nvr/'
 DATA_FOLDER = 'data/'
 TXT_FOLDER  = 'txt/'
+LYRICS_FOLDER= 'lyrics/'
+
 
 PROJ_PATH = PHD_PATH + PROJ_FOLDER
 DATA_PATH = PHD_PATH + PROJ_FOLDER + DATA_FOLDER
 TXT_PATH  = PHD_PATH + PROJ_FOLDER + TXT_FOLDER
+LYRICS_PATH = PHD_PATH + PROJ_FOLDER + LYRICS_FOLDER
 
 TRAIN_FILE = 'train_list.txt'
 VALID_FILE = 'valid_list.txt'

@@ -167,11 +167,11 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 100
+	nb_epoch = 10
 	
 	#spectrogram constants
 	minNumFr = 1290
-	minNumFr = 200 #to reduce the datapoints, for temporary.
+	minNumFr = 5 #to reduce the datapoints, for temporary.
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
 	numGenre = 10
@@ -202,7 +202,7 @@ if __name__ == '__main__':
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 	cPickle.dump(model, open(DATA_PATH + MODEL_FILE, "wb"))
-	
+
 	print '--- prepare test data  ---'
 	numDataPoints = int(portionTesting * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
