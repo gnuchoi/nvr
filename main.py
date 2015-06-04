@@ -177,6 +177,7 @@ if __name__ == '__main__':
 	numGenre = 10
 	numSongPerGenre = 100
 	portionTraining = 0.8
+	portionTesting = 0.2
 
 	numIteration = 1
  
