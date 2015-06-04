@@ -202,6 +202,7 @@ if __name__ == '__main__':
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 	'''
 	print '--- prepare test data  ---'
+	pdb.set_trace()
 	numDataPoints = int((1.0-portionTraining) * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
 	test_y = np.zeros((numDataPoints,1))
