@@ -182,7 +182,7 @@ if __name__ == '__main__':
 	numIteration = 1
  
 	#for iter_i in range(numIteration):
-	'''
+	
 	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
 	training_x = np.zeros((numDataPoints, lenFreq))
 	training_y = np.zeros((numDataPoints,1))	
@@ -201,7 +201,7 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
-	'''
+	
 	print '--- prepare test data  ---'
 	pdb.set_trace()
 	numDataPoints = int(portionTesting * numSongPerGenre) * numGenre * minNumFr
@@ -218,7 +218,7 @@ if __name__ == '__main__':
 			test_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
 			test_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 	print '--- test data loaded ---'
-	print '--- prediction! for ' + genre + ' ---'
+	print '--- prediction! for ---'
 	test_y = np_utils.to_categorical(test_y, nb_classes)
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
