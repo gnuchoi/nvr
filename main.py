@@ -201,9 +201,9 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
+	cPickle.dump(model, open(DATA_PATH + MODEL_FILE, "wb"))
 	
 	print '--- prepare test data  ---'
-	pdb.set_trace()
 	numDataPoints = int(portionTesting * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
 	test_y = np.zeros((numDataPoints,1))
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
 	print('Test accuracy:', score[1])
-	cPickle.dump(model, open(DATA_PATH + MODEL_FILE, "wb"))
+	
 
 
 
