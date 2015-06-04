@@ -171,7 +171,7 @@ if __name__ == '__main__':
 	
 	#spectrogram constants
 	minNumFr = 1290
-	minNumFr = 10 #to reduce the datapoints, for temporary.
+	minNumFr = 200 #to reduce the datapoints, for temporary.
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
 	numGenre = 10
