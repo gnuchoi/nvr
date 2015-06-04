@@ -90,15 +90,15 @@ def buildModel():
 	from keras.optimizers import RMSprop
 
 	model = Sequential()
-	model.add(Dense(513, 128, init='uniform')) #500: arbitrary number
+	model.add(Dense(513, 128, init='lecun_uniform')) #500: arbitrary number
 	model.add(Activation('tanh'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(128, 32, init='uniform'))
+	model.add(Dense(128, 32, init='lecun_uniform'))
 	model.add(Activation('tanh'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(32, 10, init='uniform'))
+	model.add(Dense(32, 10, init='lecun_uniform'))
 	model.add(Activation('softmax'))
 
 	rms = RMSprop()
@@ -171,7 +171,7 @@ if __name__ == '__main__':
 	
 	#spectrogram constants
 	minNumFr = 1290
-	minNumFr = 300 #to reduce the datapoints, for temporary.
+	minNumFr = 600 #to reduce the datapoints, for temporary.
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
 	numGenre = 10
