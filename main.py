@@ -171,7 +171,7 @@ if __name__ == '__main__':
 	
 	#spectrogram constants
 	minNumFr = 1290
-	minNumFr = 600 #to reduce the datapoints, for temporary.
+	minNumFr = 10 #to reduce the datapoints, for temporary.
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
 	numGenre = 10
@@ -181,7 +181,7 @@ if __name__ == '__main__':
 	numIteration = 1
  
 	#for iter_i in range(numIteration):
-	
+	'''
 	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
 	training_x = np.zeros((numDataPoints, lenFreq))
 	training_y = np.zeros((numDataPoints,1))	
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 			indToWrite = genre_i * int(portionTraining * numSongPerGenre) + song_i # 80
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			#print 'genre_i:' + str(genre_i) + ', song_i:' + str(song_i) + ', so, ' +str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
+			
 			training_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
 			training_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 	print '--- training data loaded ---'
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
-
+	'''
 	print '--- prepare test data  ---'
 	numDataPoints = int((1-portionTraining) * numSongPerGenre) * numGenre * minNumFr
 	test_x = np.zeros((numDataPoints, lenFreq))
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 			indToWrite = genre_i * int((1-portionTraining) * numSongPerGenre) + (song_i - int(portionTraining*numSongPerGenre)) # 20
 			genre = f_h5[f_h5.keys()[ind]].attrs['genre']
 			specgram = f_h5[f_h5.keys()[ind]][:,0:minNumFr] # 513x1290
-			# specVector = np.reshape(specgram, (1, lenFreq*minNumFr))
+			print 'genre_i:' + str(genre_i) + ', song_i:' + str(song_i) + ', so, ' +str(ind*minNumFr) + ' to ' + str((ind+1)*minNumFr) + ', out of ' + str(numDataPoints)
 			test_x[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.transpose(specgram)
 			test_y[indToWrite*minNumFr:(indToWrite+1)*minNumFr, : ] = np.ones((specgram.shape[1], 1)) * genreToClassDict[genre] # int, 0-9
 	print '--- test data loaded ---'
