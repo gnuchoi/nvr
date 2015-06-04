@@ -42,3 +42,5 @@ TEST_FILE  = 'test_list.txt'
 GTZAN_h5FILE = 'dict.h5'
 GTZAN_DATA = 'gtzan_data.p'
 GTZAN_TRAINING_TEST = 'gtzan_training_test.p'
+
+MODEL_FILE = 'model.p'
