@@ -148,7 +148,12 @@ def loadData():
 
 def die_with_usage():
 	""" HELP MENU """
-	print 'blahblah..you know..'
+	print '-'*40
+	print 'python main.py minNumFr nb_epoch'
+	print '  with gtzan, minNumFr < 1290 '
+	print '  nb_epoch : 1~10~200~, any integer.'
+	print '-'*40
+	
 
 	sys.exit(0)
 
