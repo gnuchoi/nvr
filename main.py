@@ -155,11 +155,10 @@ def die_with_usage():
 if __name__ == '__main__':
 
 
-	if len(sys.argv) < 2:
+	if len(sys.argv) < 4:
 		die_with_usage()
-	if sys.argv[0] > 1290:
-		print 'argv[0], minNumFr must be <= 1290 and positive integer.'
-		print str(sys.argv[0])
+	if sys.argv[2] > 1290:
+		print 'argv[2], minNumFr must be <= 1290 and positive integer.'
 		die_with_usage()
 
 
@@ -186,12 +185,12 @@ if __name__ == '__main__':
 	batch_size = 64
 	nb_classes = 10
 	nb_epoch = 9
-	nb_epoch = sys.argv[1]
+	nb_epoch = sys.argv[3]
 	
 	#spectrogram constants
 	minNumFr = 1290
 	minNumFr = 5 #to reduce the datapoints, for temporary.
-	minNumFr = sys.argv[0]
+	minNumFr = sys.argv[2]
 
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
