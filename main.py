@@ -159,6 +159,7 @@ if __name__ == '__main__':
 		die_with_usage()
 	if sys.argv[0] > 1290:
 		print 'argv[0], minNumFr must be <= 1290 and positive integer.'
+		print sys.argv[0]
 		die_with_usage()
 
 
