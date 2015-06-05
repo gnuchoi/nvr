@@ -9,6 +9,7 @@ import librosa
 import numpy as np
 import h5py # to read/write data
 import os
+import sys
 
 import cPickle 
 import pdb
@@ -145,9 +146,25 @@ def loadData():
 	data = cPickle.load(open(GNU_SPEC_PATH + GTZAN_TRAINING_TEST, 'rb'))
 	return data[0], data[1], data[2], data[3]
 
+def die_with_usage():
+	""" HELP MENU """
+	print 'blahblah..you know..'
 
+	sys.exit(0)
 
 if __name__ == '__main__':
+
+
+	if len(sys.argv) < 2:
+		die_with_usage()
+	if sys.argv[0] > 1290:
+		print 'argv[0], minNumFr must be <= 1290 and positive integer.'
+		die_with_usage()
+
+
+
+
+
 	#get file list in the source folder	
 	# prepare() #old one for the beginning.
 	prepareGtzan()
@@ -168,10 +185,13 @@ if __name__ == '__main__':
 	batch_size = 64
 	nb_classes = 10
 	nb_epoch = 9
+	nb_epoch = sys.argv[1]
 	
 	#spectrogram constants
 	minNumFr = 1290
 	minNumFr = 5 #to reduce the datapoints, for temporary.
+	minNumFr = sys.argv[0]
+
 	lenFreq = N_FFT/2+1 #length on frequency axis
 	#about training data loading
 	numGenre = 10
