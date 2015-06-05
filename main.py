@@ -167,7 +167,7 @@ if __name__ == '__main__':
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
-	nb_epoch = 10
+	nb_epoch = 9
 	
 	#spectrogram constants
 	minNumFr = 1290
