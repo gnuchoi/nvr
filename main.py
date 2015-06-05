@@ -165,6 +165,7 @@ if __name__ == '__main__':
 		print 'argv[2], minNumFr must be <= 1290 and positive integer.'
 		die_with_usage()
 
+	modelname_suffix = '_' + sys.argv[1] + '_' + sys.argv[2]
 
 
 
@@ -225,7 +226,7 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
-	cPickle.dump(model, open(DATA_PATH + MODEL_FILE, "wb"))
+	cPickle.dump(model, open(DATA_PATH + MODEL_FILE + modelname_suffix, "wb"))
 
 	print '--- prepare test data  ---'
 	numDataPoints = int(portionTesting * numSongPerGenre) * numGenre * minNumFr
