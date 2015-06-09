@@ -96,11 +96,11 @@ def prepareGtzan():
 				src, sr = librosa.load(GTZAN_WAV_PATH + folder + '/' + filename)
 				#1. _stft: spectrogram
 				specgram = np.absolute(librosa.stft(src, n_fft=N_FFT, hop_length=N_HOP, win_length=N_WIN, window=TYPE_WIN)) # STFT of signal
-				dset = f_h5.create_dataset(filename + '_stft', data=specgram)
+				dset = f_h5.create_dataset(filename + '_stft', data=specgram, chunks=True)
 				dset.attrs['genre'] = genre
 				#2. _mfcc; mfcc
 				mfcc = librosa.feature.mfcc(src, sr, n_mfcc=N_MFCC)
-				dset = f_h5.create_dataset(filename + '_mfcc', data=mfcc)
+				dset = f_h5.create_dataset(filename + '_mfcc', data=mfcc, chunks=True)
 				dset.attrs['genre'] = genre
 				print filename + ' is STFTed/MFCCed and stored.'
 	f_h5.close()
@@ -117,21 +117,23 @@ def buildModel(n_input):
 	from keras.optimizers import RMSprop
 
 	model = Sequential()
-	model.add(Dense(n_input , 128, init='lecun_uniform')) #500: arbitrary number
-	model.add(Activation('tanh'))
+	model.add(Dense(n_input , 256, init='lecun_uniform')) #500: arbitrary number
+	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 	'''
 	model.add(Dense(128, 128, init='lecun_uniform'))
-	model.add(Activation('tanh'))
+	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 	'''
-	model.add(Dense(128, 64, init='lecun_uniform'))
-	model.add(Activation('tanh'))
+	model.add(Dense(256, 64, init='lecun_uniform'))
+	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
 	model.add(Dense(64, 10, init='lecun_uniform'))
 	model.add(Activation('softmax'))
 
+	#sgd = keras.optimizers.SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+	#model.compile(loss='categorical_crossentropy', optimizer=sgd)
 	rms = RMSprop()
 	model.compile(loss='categorical_crossentropy', optimizer=rms)
 	return model
@@ -194,7 +196,7 @@ if __name__ == '__main__':
  
 	#for iter_i in range(numIteration):
 	
-	print '--- prepare data --- p.s. numDataPoints: ' + str(numDataPoints)
+	print '--- prepare data --- '
 
 	f_training_txt = open( TXT_PATH + TRAIN_LIST_FILE, 'r') 
 	f_valid_txt = open(TXT_PATH + VALID_LIST_FILE, 'r')
@@ -210,14 +212,16 @@ if __name__ == '__main__':
 	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
 	training_x = np.zeros((numDataPoints, lenFreq + N_MFCC))
 	training_y = np.zeros((numDataPoints,1))	
-
+	print '          p.s. numDataPoints: ' + str(numDataPoints)
 	for ind, train_file in enumerate(train_files):
-		genre = f_h5[train_file + '_stft'].attrs['genre']
-		specgram = f_h5[train_file + '_stft'][:, 0:minNumFr]
-		mfcc = f_h5[train_file + '_mfcc'][:, 0:minNumFr] 
+		filenameHere = train_file.split('/')[1].rstrip('\n')
+		genre = f_h5[filenameHere + '_stft'].attrs['genre']
+		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
+		mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
 
+		genreToClassDict[genre]
 		training_x[ind*minNumFr: (ind+1)*minNumFr, :] = np.hstack((np.transpose(specgram), np.transpose(mfcc)))
-		training_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))
+		training_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))* genreToClassDict[genre] # int, 0-9
 
 
 	'''
@@ -247,12 +251,13 @@ if __name__ == '__main__':
 	test_y = np.zeros((numDataPoints,1))	
 
 	for ind, test_file in enumerate(train_files):
-		genre = f_h5[test_file + '_stft'].attrs['genre']
-		specgram = f_h5[test_file + '_stft'][:, 0:minNumFr]
-		mfcc = f_h5[test_file + '_mfcc'][:, 0:minNumFr] 
+		filenameHere = train_file.split('/')[1].rstrip('\n')
+		genre = f_h5[filenameHere + '_stft'].attrs['genre']
+		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
+		mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
 
 		test_x[ind*minNumFr: (ind+1)*minNumFr, :] = np.hstack((np.transpose(specgram), np.transpose(mfcc)))
-		test_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))
+		test_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))* genreToClassDict[genre] # int, 0-9
 
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'
@@ -260,4 +265,6 @@ if __name__ == '__main__':
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
 	print('Test accuracy:', score[1])
+	pdb.set_trace()
+
 	
