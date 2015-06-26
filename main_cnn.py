@@ -111,38 +111,54 @@ def genreToClass():
 	return retDict
 
 
-def buildModel(n_input):
+def buildConvNetModel(numFr):
+	'''Build a convnet model for spectrogram.
+	Take care when decide conv size and whether it should be 1d or 2d, ...
+	'''
+
 	from keras.models import Sequential
-	from keras.layers.core import Dense, Dropout, Activation
-	from keras.optimizers import RMSprop
+	from keras.layers.core import Dense, Dropout, Activation, Flatten
+	from keras.layers.convolutional import Convolution2D, MaxPooling2D
+	from keras.optimizers import RMSprop, SGD, Adadelta, Adagrad
+
+	nb_classes = 10
 
 	model = Sequential()
-	model.add(Dense(n_input , 256, init='lecun_uniform')) #500: arbitrary number
+
+	model.add(Convolution2D(32, 1, 1, 5, border_mode = 'full'))
 	model.add(Activation('relu'))
-	model.add(Dropout(0.5))
-	'''
-	model.add(Dense(128, 128, init='lecun_uniform'))
+	model.add(MaxPooling2D(poolsize = (2,2)))
+
+	model.add(Convolution2D(64,32,1,5, border_mode='full'))
 	model.add(Activation('relu'))
-	model.add(Dropout(0.5))
-	'''
-	model.add(Dense(256, 128, init='lecun_uniform'))
+	model.add(MaxPooling2D(poolsize = (1,2)))
+	model.add(Dropout(0.25))
+
+	model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
+	model.add(Activation('relu'))
+	model.add(MaxPooling2D(poolsize = (1,2)))
+	model.add(Dropout(0.25))
+
+	model.add(Flatten())
+
+	model.add(Dense(LEN_FREQ*(numFr/4), 256, init='normal'))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(128, 10, init='lecun_uniform'))
+	model.add(Dense(256, nb_classes, init='lecun_uniform'))
 	model.add(Activation('softmax'))
 
-	#sgd = keras.optimizers.SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
-	#model.compile(loss='categorical_crossentropy', optimizer=sgd)
-	rms = RMSprop()
-	model.compile(loss='categorical_crossentropy', optimizer=rms)
+	sgd = SGD(lr=0.01, decay=1e-6, momentum = 0.9, nesterov=True)
+
+	model.compile(loss='categorical_crossentropy', optimizer=sgd)
+
 	return model
 
 
 def die_with_usage():
 	""" HELP MENU """
 	print '-'*20 + ' usage ' + '-'*20
-	print 'keras-based Deep NN for GTZAN prediction.'
+	print 'keras-based ConvNet for GTZAN prediction'
 	print '$ python main.py minNumFr nb_epoch'
 	print '     gtzan, * minNumFr < 1290 (when N_FFT = 1024)'
 	print '            * nb_epoch : 1~10~200~, any integer.'
@@ -165,14 +181,14 @@ if __name__ == '__main__':
 
 	#get file list in the source folder	
 	# prepare() #old one for the beginning.
-	prepareTexts()
-	prepareGtzan()
+	prepareTexts() #'--- generate text file of gtzan list ---'
+	prepareGtzan() # stft of the dataset
 	genreToClassDict = genreToClass()
 	'''
 	minNumFr = 99999
 	for i in range(len(f_h5)):
 		minNumFr = min(minNumFr, f_h5[f_h5.keys()[i]].shape[1])
-	#Now I Know, it's 1290 for GTZAN
+	#Now I Know, it's 1290 for GTZAN when N_FFT = 1024
 	'''
 	#about optimisation
 	batch_size = 64
@@ -184,8 +200,9 @@ if __name__ == '__main__':
 	minNumFr = 600
 	minNumFr = 5 #to reduce the datapoints, for temporary.
 	minNumFr = int(sys.argv[1])
+	minNumFr = np.round(int(minNumFr/4) * 4) # because there will be two MaxPooling. 
 
-	lenFreq = N_FFT/2+1 #length on frequency axis
+	lenFreq = LEN_FREQ
 	
 	#about training data loading
 	numGenre = 10
@@ -210,19 +227,23 @@ if __name__ == '__main__':
 	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
 	f_h5 = h5py.File(h5filepath, 'r')
 	
-	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
-	training_x = np.zeros((numDataPoints, lenFreq + N_MFCC))
-	training_y = np.zeros((numDataPoints,1))	
-	print '          p.s. numDataPoints: ' + str(numDataPoints)
+	# numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
+	filenameHere = train_files[0].split('/')[1].rstrip('\n') #test file to get the size of spectrogram
+	genre = f_h5[filenameHere + '_stft'].attrs['genre']
+	specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
+	numFr = specgram.shape[1]
+	numTrainData = int(portionTraining * numSongPerGenre) * numGenre
+
+	training_x = np.zeros((numTrainData, 1, specgram.shape[0], specgram.shape[1]))
+	training_y = np.zeros((numTrainData, 1))
+
 	for ind, train_file in enumerate(train_files):
 		filenameHere = train_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
 		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
-		mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr]
-
-		genreToClassDict[genre]
-		training_x[ind*minNumFr: (ind+1)*minNumFr, :] = np.hstack((np.transpose(specgram), np.transpose(mfcc)))
-		training_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))* genreToClassDict[genre] # int, 0-9
+		#mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr]
+		training_x[ind, 0, :, :] = specgram
+		training_y[ind] = genreToClassDict[genre] # int, 0-9
 
 
 	'''
@@ -242,27 +263,30 @@ if __name__ == '__main__':
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	
 	#about model
-	model = buildModel(lenFreq + N_MFCC)
+	model = buildConvNetModel(numFr)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
 	#cPickle.dump(model, open(DATA_PATH + MODEL_FILE + modelname_suffix, "wb"))
 
 	print '--- prepare test data  ---'
-	numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
-	test_x = np.zeros((numDataPoints, lenFreq + N_MFCC))
-	test_y = np.zeros((numDataPoints,1))	
+
+	numTestData  = int(portionTesting * numSongPerGenre) * numGenre
+
+	test_x = np.zeros((numTestData, 1, specgram.shape[0], specgram.shape[1]))
+	test_y = np.zeros((numTestData,1))	
 
 	for ind, test_file in enumerate(train_files):
 		filenameHere = train_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
 		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
-		mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
+		# mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
 
-		test_x[ind*minNumFr: (ind+1)*minNumFr, :] = np.hstack((np.transpose(specgram), np.transpose(mfcc)))
-		test_y[ind*minNumFr: (ind+1)*minNumFr, :] = np.ones((specgram.shape[1], 1))* genreToClassDict[genre] # int, 0-9
+		test_x[ind, 0, :, :] = specgram
+		test_y[ind] = genreToClassDict[genre] # int, 0-9
 
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'
 	test_y = np_utils.to_categorical(test_y, nb_classes)
+
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
 	print('Test accuracy:', score[1])
