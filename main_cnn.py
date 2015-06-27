@@ -127,7 +127,7 @@ def buildConvNetModel(numFr):
 
 	model.add(Convolution2D(32, 1, 1, 5, border_mode = 'full'))
 	model.add(Activation('relu'))
-	model.add(MaxPooling2D(poolsize = (2,2)))
+	model.add(MaxPooling2D(poolsize = (1,2)))
 
 	model.add(Convolution2D(64,32,1,5, border_mode='full'))
 	model.add(Activation('relu'))
@@ -141,7 +141,7 @@ def buildConvNetModel(numFr):
 
 	model.add(Flatten())
 
-	model.add(Dense(LEN_FREQ*(numFr/4), 256, init='normal'))
+	model.add(Dense(LEN_FREQ*(numFr/8), 256, init='normal'))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
@@ -175,6 +175,7 @@ if __name__ == '__main__':
 		print 'argv[2], minNumFr must be <= 1290 and positive integer.'
 		die_with_usage()
 
+
 	modelname_suffix = '_' + sys.argv[1] + '_' + sys.argv[2]
 
 	GTZAN_h5FILE = GTZAN_h5FILE_BASENAME + '_' + str(N_FFT) + '.h5' #should be done before prepareGtzan()
@@ -190,6 +191,7 @@ if __name__ == '__main__':
 		minNumFr = min(minNumFr, f_h5[f_h5.keys()[i]].shape[1])
 	#Now I Know, it's 1290 for GTZAN when N_FFT = 1024
 	'''
+
 	#about optimisation
 	batch_size = 64
 	nb_classes = 10
@@ -197,10 +199,11 @@ if __name__ == '__main__':
 	nb_epoch = int(sys.argv[2])
 	
 	#spectrogram constants
+	numMaxPool = 3
 	minNumFr = 600
 	minNumFr = 5 #to reduce the datapoints, for temporary.
 	minNumFr = int(sys.argv[1])
-	minNumFr = np.round(int(minNumFr/4) * 4) # because there will be two MaxPooling. 
+	minNumFr = np.round(int(minNumFr/(2**numMaxPool)) * (2**numMaxPool)) 
 
 	lenFreq = LEN_FREQ
 	
