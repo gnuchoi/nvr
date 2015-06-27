@@ -151,6 +151,8 @@ class termDocMatrix(object):
 
 		self.LSA_tdMtx = np.transpose(pca.fit_transform(np.transpose(self.tdMtx)))
 
+	
+
 
 
 

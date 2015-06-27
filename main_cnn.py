@@ -125,27 +125,29 @@ def buildConvNetModel(numFr):
 
 	model = Sequential()
 
-	model.add(Convolution2D(32, 1, 1, 5, border_mode = 'full'))
+	model.add(Convolution2D(16, 1, 1, 5, border_mode = 'full'))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(poolsize = (1,2)))
 
-	model.add(Convolution2D(64,32,1,5, border_mode='full'))
-	model.add(Activation('relu'))
-	model.add(MaxPooling2D(poolsize = (1,2)))
-	model.add(Dropout(0.25))
-
-	model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
+	model.add(Convolution2D(32,16,1,5, border_mode='full'))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(poolsize = (1,2)))
 	model.add(Dropout(0.25))
 
-	model.add(Flatten())
+	#model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
+	#model.add(Activation('relu'))
+	#model.add(MaxPooling2D(poolsize = (1,2)))
+	#model.add(Dropout(0.25))
 
-	model.add(Dense(LEN_FREQ*(numFr/8), 256, init='normal'))
+	model.add(Flatten()) # data point == image size * number of stack 
+
+	numDataPoints = 32 * LEN_FREQ * (numFr/4)
+
+	model.add(Dense(numDataPoints, 64, init='normal'))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(256, nb_classes, init='lecun_uniform'))
+	model.add(Dense(64, nb_classes, init='lecun_uniform'))
 	model.add(Activation('softmax'))
 
 	sgd = SGD(lr=0.01, decay=1e-6, momentum = 0.9, nesterov=True)
@@ -201,7 +203,6 @@ if __name__ == '__main__':
 	#spectrogram constants
 	numMaxPool = 3
 	minNumFr = 600
-	minNumFr = 5 #to reduce the datapoints, for temporary.
 	minNumFr = int(sys.argv[1])
 	minNumFr = np.round(int(minNumFr/(2**numMaxPool)) * (2**numMaxPool)) 
 
