@@ -127,9 +127,8 @@ def buildConvNetModel(numFr):
 
 	model.add(Convolution2D(16, 1, 1, 5, border_mode = 'full'))
 	model.add(Activation('relu'))
-	model.add(MaxPooling2D(poolsize = (1,2)))
 
-	model.add(Convolution2D(32,16,1,5, border_mode='full'))
+	model.add(Convolution2D(16,16,1,5, border_mode='full'))
 	model.add(Activation('relu'))
 	model.add(MaxPooling2D(poolsize = (1,2)))
 	model.add(Dropout(0.25))
@@ -141,7 +140,7 @@ def buildConvNetModel(numFr):
 
 	model.add(Flatten()) # data point == image size * number of stack 
 
-	numDataPoints = 32 * LEN_FREQ * (numFr/4)
+	numDataPoints = 16 * LEN_FREQ * (numFr/2)
 
 	model.add(Dense(numDataPoints, 32, init='normal'))
 	model.add(Activation('relu'))
@@ -203,7 +202,7 @@ if __name__ == '__main__':
 	numMaxPool = 3
 	minNumFr = 600
 	minNumFr = int(sys.argv[1])
-	minNumFr = np.floor(int(minNumFr/(2**numMaxPool)) * (2**numMaxPool)) 
+	minNumFr = (minNumFr / 8) * 8
 
 	lenFreq = LEN_FREQ
 	
@@ -263,7 +262,6 @@ if __name__ == '__main__':
 	#after loading from all genre, let's make it appropriate for the model
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
-	
 
 	#about model
 	model = buildConvNetModel(numFr)
@@ -285,6 +283,7 @@ if __name__ == '__main__':
 
 		test_x[ind, 0, :, :] = specgram
 		test_y[ind] = genreToClassDict[genre] # int, 0-9
+
 
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'

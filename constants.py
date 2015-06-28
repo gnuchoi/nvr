@@ -1,7 +1,7 @@
 
 
 
-N_FFT = 2048
+N_FFT = 512
 LEN_FREQ = N_FFT / 2 + 1 
 N_MFCC = 256
 N_HOP = N_FFT / 2
