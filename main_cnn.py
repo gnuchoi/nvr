@@ -143,17 +143,16 @@ def buildConvNetModel(numFr):
 
 	numDataPoints = 32 * LEN_FREQ * (numFr/4)
 
-	model.add(Dense(numDataPoints, 64, init='normal'))
+	model.add(Dense(numDataPoints, 32, init='normal'))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(64, nb_classes, init='lecun_uniform'))
+	model.add(Dense(32, nb_classes, init='lecun_uniform'))
 	model.add(Activation('softmax'))
 
 	sgd = SGD(lr=0.01, decay=1e-6, momentum = 0.9, nesterov=True)
 
 	model.compile(loss='categorical_crossentropy', optimizer=sgd)
-
 	return model
 
 
@@ -204,7 +203,7 @@ if __name__ == '__main__':
 	numMaxPool = 3
 	minNumFr = 600
 	minNumFr = int(sys.argv[1])
-	minNumFr = np.round(int(minNumFr/(2**numMaxPool)) * (2**numMaxPool)) 
+	minNumFr = np.floor(int(minNumFr/(2**numMaxPool)) * (2**numMaxPool)) 
 
 	lenFreq = LEN_FREQ
 	
@@ -249,7 +248,6 @@ if __name__ == '__main__':
 		training_x[ind, 0, :, :] = specgram
 		training_y[ind] = genreToClassDict[genre] # int, 0-9
 
-
 	'''
 	for genre_i in range(numGenre):
 		for song_i in range(int(portionTraining * numSongPerGenre)): # 0:80	
@@ -266,6 +264,7 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	
+
 	#about model
 	model = buildConvNetModel(numFr)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
