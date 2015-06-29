@@ -284,7 +284,7 @@ if __name__ == '__main__':
 	test_x = np.zeros((numTestData, 1, specgram.shape[0], specgram.shape[1]))
 	test_y = np.zeros((numTestData,1))	
 
-	for ind, test_file in enumerate(train_files):
+	for ind, test_file in enumerate(test_files):
 		filenameHere = train_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
 		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
