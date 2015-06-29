@@ -125,22 +125,31 @@ def buildConvNetModel(numFr):
 
 	model = Sequential()
 
-	model.add(Convolution2D(16, 1, 1, 5, border_mode = 'full'))
+	lenConvolve = 5 
+
+	model.add(Convolution2D(16, 1, 1, lenConvolve, border_mode = 'full'))
+	model.add(Activation('relu'))
+	
+	numFr = numFr + lenConvolve - 1
+
+	model.add(Convolution2D(1,16, 1, lenConvolve, border_mode='full'))
 	model.add(Activation('relu'))
 
-	model.add(Convolution2D(16,16,1,5, border_mode='full'))
-	model.add(Activation('relu'))
+	numFr = numFr + lenConvolve - 1
+	
 	model.add(MaxPooling2D(poolsize = (1,2)))
+
+	numFr = numFr / 2
+
 	model.add(Dropout(0.25))
 
 	#model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
 	#model.add(Activation('relu'))
 	#model.add(MaxPooling2D(poolsize = (1,2)))
 	#model.add(Dropout(0.25))
-
 	model.add(Flatten()) # data point == image size * number of stack 
 
-	numDataPoints = 16 * LEN_FREQ * (numFr/2)
+	numDataPoints = 1 * LEN_FREQ * (numFr)
 
 	model.add(Dense(numDataPoints, 32, init='normal'))
 	model.add(Activation('relu'))
@@ -202,7 +211,7 @@ if __name__ == '__main__':
 	numMaxPool = 3
 	minNumFr = 600
 	minNumFr = int(sys.argv[1])
-	minNumFr = (minNumFr / 8) * 8
+	minNumFr = int(np.floor(minNumFr / 8) * 8)
 
 	lenFreq = LEN_FREQ
 	
@@ -228,7 +237,6 @@ if __name__ == '__main__':
 	
 	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
 	f_h5 = h5py.File(h5filepath, 'r')
-	
 	# numDataPoints = int(portionTraining * numSongPerGenre) * numGenre * minNumFr
 	filenameHere = train_files[0].split('/')[1].rstrip('\n') #test file to get the size of spectrogram
 	genre = f_h5[filenameHere + '_stft'].attrs['genre']
@@ -238,7 +246,7 @@ if __name__ == '__main__':
 
 	training_x = np.zeros((numTrainData, 1, specgram.shape[0], specgram.shape[1]))
 	training_y = np.zeros((numTrainData, 1))
-
+	
 	for ind, train_file in enumerate(train_files):
 		filenameHere = train_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
@@ -246,6 +254,7 @@ if __name__ == '__main__':
 		#mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr]
 		training_x[ind, 0, :, :] = specgram
 		training_y[ind] = genreToClassDict[genre] # int, 0-9
+	
 
 	'''
 	for genre_i in range(numGenre):
