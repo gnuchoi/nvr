@@ -80,6 +80,7 @@ def prepareGtzan():
 	what it does: load the files, get stft, save it into the disk, and update h5 dictionary
 	'''
 	h5filepath = GNU_SPEC_PATH + GTZAN_h5FILE
+	print 'h5filepath is ' + h5filepath
 
 	if os.path.exists(h5filepath):
 		print "let's just load the Gtzan STFTs"
