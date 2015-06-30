@@ -43,10 +43,12 @@ def prepareTexts():
 	numFiles = len(listoftextfiles)
 	
 	#traning/valid/test set
-	trainingSetIndex = np.random.choice(100, 60, replace=False)
+	trainingSetIndex = np.random.choice(100, 80, replace=False)
 	theothers = [num for num in range(100) if not num in trainingSetIndex]
-	validSetIndex = theothers[0:20]
-	testSetIndex = theothers[20:40]
+	#validSetIndex = theothers[0:20]
+	#testSetIndex = theothers[20:40]
+	validSetIndex = []
+	testSetIndex = theothers
 
 	f_training_txt = open( TXT_PATH + TRAIN_LIST_FILE, 'w') # SHOULD BE MOVED IN constants.py
 	f_valid_txt = open(TXT_PATH + VALID_LIST_FILE, 'w')
@@ -133,7 +135,7 @@ def buildConvNetModel(numFr):
 	
 	numFr = numFr + lenConvolve - 1
 
-	model.add(Convolution2D(1,16, 1, lenConvolve, border_mode='full'))
+	model.add(Convolution2D(32,16, 1, lenConvolve, border_mode='full'))
 	model.add(Activation('relu'))
 
 	numFr = numFr + lenConvolve - 1
@@ -150,7 +152,7 @@ def buildConvNetModel(numFr):
 	#model.add(Dropout(0.25))
 	model.add(Flatten()) # data point == image size * number of stack 
 
-	numDataPoints = 1 * LEN_FREQ * (numFr)
+	numDataPoints = 32 * LEN_FREQ * (numFr)
 
 	model.add(Dense(numDataPoints, 32, init='normal'))
 	model.add(Activation('relu'))
@@ -254,7 +256,7 @@ if __name__ == '__main__':
 		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
 		#mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr]
 		training_x[ind, 0, :, :] = specgram
-		training_y[ind] = genreToClassDict[genre] # int, 0-9
+		training_y[ind, 0] = 1.0*genreToClassDict[genre] # int, 0-9
 	
 
 	'''
@@ -271,11 +273,11 @@ if __name__ == '__main__':
 	print '--- training data loaded ---'
 	#after loading from all genre, let's make it appropriate for the model
 	print '--- model fitting! ---'
-	training_y = np_utils.to_categorical(training_y, nb_classes)
 
+	training_y = np_utils.to_categorical(training_y, nb_classes)
 	#about model
 	model = buildConvNetModel(numFr)
-	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
+	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=1)		
 	#cPickle.dump(model, open(DATA_PATH + MODEL_FILE + modelname_suffix, "wb"))
 
 	print '--- prepare test data  ---'
@@ -292,14 +294,14 @@ if __name__ == '__main__':
 		# mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
 
 		test_x[ind, 0, :, :] = specgram
-		test_y[ind] = genreToClassDict[genre] # int, 0-9
+		test_y[ind, 0] = 1.0*genreToClassDict[genre] # int, 0-9
 
 
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'
 	test_y = np_utils.to_categorical(test_y, nb_classes)
 
-	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
+	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=1)
 	print('Test score:', score[0])
 	print('Test accuracy:', score[1])
 	pdb.set_trace()
