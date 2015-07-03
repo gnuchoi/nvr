@@ -5,6 +5,8 @@ from setup_environment import *
 
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import librosa
 import numpy as np
 import h5py # to read/write data
@@ -125,17 +127,16 @@ def buildConvNetModel(numFr):
 	from keras.optimizers import RMSprop, SGD, Adadelta, Adagrad
 
 	nb_classes = 10
+	lenConvolve = 5 
 
 	model = Sequential()
 
-	lenConvolve = 5 
-
-	model.add(Convolution2D(16, 1, 1, lenConvolve, border_mode = 'full'))
+	model.add(Convolution2D(128, 1, 1, lenConvolve, border_mode = 'full'))
 	model.add(Activation('relu'))
 	
 	numFr = numFr + lenConvolve - 1
 
-	model.add(Convolution2D(32,16, 1, lenConvolve, border_mode='full'))
+	model.add(Convolution2D(64,128, 1, lenConvolve, border_mode='full'))
 	model.add(Activation('relu'))
 
 	numFr = numFr + lenConvolve - 1
@@ -146,22 +147,28 @@ def buildConvNetModel(numFr):
 
 	model.add(Dropout(0.25))
 
-	#model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
-	#model.add(Activation('relu'))
-	#model.add(MaxPooling2D(poolsize = (1,2)))
-	#model.add(Dropout(0.25))
+	model.add(Convolution2D(64,64,1,5, border_mode = 'full'))	
+	model.add(Activation('relu'))
+	numFr = numFr + lenConvolve - 1
+
+	model.add(MaxPooling2D(poolsize = (1,2)))
+	numFr = numFr / 2
+
+	model.add(Dropout(0.25))
+
 	model.add(Flatten()) # data point == image size * number of stack 
 
-	numDataPoints = 32 * LEN_FREQ * (numFr)
+	numDataPoints = 64 * LEN_FREQ * (numFr)
 
-	model.add(Dense(numDataPoints, 32, init='normal'))
+	model.add(Dense(numDataPoints, 64, init='normal'))
 	model.add(Activation('relu'))
 	model.add(Dropout(0.5))
 
-	model.add(Dense(32, nb_classes, init='lecun_uniform'))
+	model.add(Dense(64, nb_classes, init='normal'))
 	model.add(Activation('softmax'))
 
 	sgd = SGD(lr=0.01, decay=1e-6, momentum = 0.9, nesterov=True)
+	#rms = RMSprop()
 
 	model.compile(loss='categorical_crossentropy', optimizer=sgd)
 	return model
@@ -250,6 +257,13 @@ if __name__ == '__main__':
 	training_x = np.zeros((numTrainData, 1, specgram.shape[0], specgram.shape[1]))
 	training_y = np.zeros((numTrainData, 1))
 	
+	# plt.figure()
+	# librosa.display.specshow(specgram)
+	# plt.title('title eeee')
+	# plt.show()
+
+	# pdb.set_trace()
+
 	for ind, train_file in enumerate(train_files):
 		filenameHere = train_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
@@ -258,6 +272,7 @@ if __name__ == '__main__':
 		training_x[ind, 0, :, :] = specgram
 		training_y[ind, 0] = 1.0*genreToClassDict[genre] # int, 0-9
 	
+
 
 	'''
 	for genre_i in range(numGenre):
@@ -273,7 +288,7 @@ if __name__ == '__main__':
 	print '--- training data loaded ---'
 	#after loading from all genre, let's make it appropriate for the model
 	print '--- model fitting! ---'
-
+	training_x = training_x.astype("float32")
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	#about model
 	model = buildConvNetModel(numFr)
@@ -288,7 +303,7 @@ if __name__ == '__main__':
 	test_y = np.zeros((numTestData,1))	
 
 	for ind, test_file in enumerate(test_files):
-		filenameHere = train_file.split('/')[1].rstrip('\n')
+		filenameHere = test_file.split('/')[1].rstrip('\n')
 		genre = f_h5[filenameHere + '_stft'].attrs['genre']
 		specgram = f_h5[filenameHere + '_stft'][:, 0:minNumFr]
 		# mfcc = f_h5[filenameHere + '_mfcc'][:, 0:minNumFr] 
@@ -300,6 +315,7 @@ if __name__ == '__main__':
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'
 	test_y = np_utils.to_categorical(test_y, nb_classes)
+	test_x = test_x.astype("float32")
 
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=1)
 	print('Test score:', score[0])

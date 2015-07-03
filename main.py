@@ -241,6 +241,9 @@ if __name__ == '__main__':
 	print '--- model fitting! ---'
 	training_y = np_utils.to_categorical(training_y, nb_classes)
 	
+	training_x = training_x.astype("float32")
+
+	
 	#about model
 	model = buildModel(lenFreq + N_MFCC)
 	model.fit(training_x, training_y, batch_size=batch_size, nb_epoch=nb_epoch, show_accuracy=True, verbose=2)		
@@ -262,6 +265,7 @@ if __name__ == '__main__':
 
 	print '--- test data loaded ---'
 	print '--- prediction! for ---'
+	test_x = test_x.astype("float32")
 	test_y = np_utils.to_categorical(test_y, nb_classes)
 	score = model.evaluate(test_x, test_y, show_accuracy=True, verbose=0)
 	print('Test score:', score[0])
